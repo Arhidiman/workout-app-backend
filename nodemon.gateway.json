@@ -1,0 +1,5 @@
+{ 
+    "watch": ["src/gateway-service"],
+    "ext": "ts",
+    "exec": "ts-node ./src/gateway-service/main.ts"
+}
