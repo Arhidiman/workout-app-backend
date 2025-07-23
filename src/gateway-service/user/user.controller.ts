@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 
 @Controller()
 export class UserController {
-    @Get('/user')
+    @Get('user')
     getUser(): string {
         return 'hi user'
     }

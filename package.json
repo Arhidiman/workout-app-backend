@@ -19,12 +19,14 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "dev-gateway": "set PORT=8000 && nodemon --config nodemon.gateway.json",
-    "dev-auth": "set PORT=8001 && ts-node ./src/auth-service/main.ts"
+    "dev-auth": "set PORT=8001 && nodemon --config nodemon.auth.json"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
+    "axios": "^1.10.0",
     "nodemon": "^3.1.10",
     "psql": "^0.0.1",
     "reflect-metadata": "^0.2.2",
