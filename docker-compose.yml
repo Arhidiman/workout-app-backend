@@ -7,10 +7,25 @@ services:
       dockerfile: Dockerfile
     container_name: workout-app-backend
     ports:
-      - "5000:5000"
+      - "8000:8000"
     restart: always
     networks:
-      - app_network
+      - w-app_network
+
+  db:
+    image: postgres
+    restart: always
+    container_name: db-w-app
+    environment:
+      POSTGRES_USER: w-app
+      PGUSER: w-app
+      POSTGRES_PASSWORD: w-app
+      POSTGRES_DB: w-app
+    ports:
+      - 5433:5432
+    networks:
+    - w-app_network
+
 networks:
-  app_network:
+  w-app_network:
     driver: bridge

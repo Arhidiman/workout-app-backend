@@ -11,7 +11,11 @@ export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
 
     const requestBody = req.body
-    const authResponse = await axios.post('http://localhost:8001/auth/sign-in', requestBody)
+
+
+    console.log(requestBody, 'request body')
+
+    const authResponse = await axios.post('http://localhost:8001/user/sign-up', requestBody)
 
     console.log(authResponse.data, 'auth response data')
 
