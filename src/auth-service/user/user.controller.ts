@@ -1,4 +1,4 @@
-import { Controller, Post } from "@nestjs/common";
+import { Controller, Get, Post, Headers } from "@nestjs/common";
 import { UserService } from "./user.service";
 
 @Controller('user')
@@ -17,11 +17,13 @@ export class UserController {
 
     @Post('sign-up')
     async signUp() {
-
-
         console.log('try to sign up')
         return await this.userService.signUp({ firstName: 'dimon', lastName: 'arch', password: '123'})
-        
     }
 
+    @Get('validate')
+    async validate(@Headers('cookie') cookie: string) {
+        console.log(cookie, 'its cookie')
+        return cookie
+    }
 }
