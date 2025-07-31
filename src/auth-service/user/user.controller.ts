@@ -26,7 +26,6 @@ export class UserController {
     @Post('sign-up')
     async signUp(@Body() body: TUserDto) {
         console.log('try to sign up')
-        return body
         return await this.userService.signUp(body)
     }
 

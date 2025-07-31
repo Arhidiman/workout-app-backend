@@ -22,6 +22,11 @@ export class AuthMiddleware implements NestMiddleware {
         console.log('request pass through middleware')
 
         const cookie = request.headers['cookie']
+        const bearer = request.headers['bearer']
+
+
+        console.log(bearer, 'token')
+
         const originalUrl = request.originalUrl
         const requestUrl = `${authBaseUrl}${originalUrl}`
         const requestMethod = request.method.toLowerCase()

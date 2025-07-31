@@ -14,7 +14,7 @@ import { AuthModule } from './user/user.module';
       username: 'app',
       password: 'app',
       database: 'app',
-      entities: [],
+      entities: [__dirname + '/**/*.entity.{ts,js}'],
       synchronize: true,
     }),
   

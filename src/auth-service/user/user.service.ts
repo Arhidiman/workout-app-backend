@@ -15,10 +15,9 @@ export class UserService {
         return { id: 1, username: 'admin'}
     }
 
-    async signUp({ firstName, lastName, password }) {
-
-        return await this.userRepository.create({ firstName, lastName, password })
-        // return { id: 1, username: 'admin'}
+    async signUp(userData) {
+        const user =  await this.userRepository.create(userData)
+        await this.userRepository.save(user)
+        return user
     }
-
 }
