@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Headers, Body } from "@nestjs/common";
+import { Controller, Post, Headers, Body, Req } from "@nestjs/common";
 import { UserService } from "./user.service";
 
 type TUserDto = {
@@ -19,18 +19,22 @@ export class UserController {
     @Post('sign-in')
     async signIn(@Body() body: TUserDto) {
         console.log('try to sign in')
-        return body
+        return 'sign in response'
         return await this.userService.signIn()
     }
 
     @Post('sign-up')
-    async signUp(@Body() body: TUserDto) {
+    async signUp(@Req() req) {
         console.log('try to sign up')
-        return await this.userService.signUp(body)
+        return '123'
+        // return await this.userService.signUp(body)
     }
 
-    @Get('validate')
-    async validate(@Headers('cookie') cookie: string) {
-        return cookie
+    @Post('validate')
+    async validate(@Headers() headers: string) {
+        const token = headers['authorization']?.replace('Bearer', '').trim()
+
+        return await this.userService.validate(token)
+        return headers
     }
 }

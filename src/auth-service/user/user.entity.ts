@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity('app_users')
 export class User {
@@ -13,5 +13,11 @@ export class User {
 
     @Column()
     password: string
+
+    @Column({ type: 'text', nullable: true})
+    access_token: string
+
+    @Column({ type: 'text', nullable: true})
+    refresh_token: string
 }
 

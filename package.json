@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.10.0",
+    "http-proxy-middleware": "^3.0.5",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
     "psql": "^0.0.1",
