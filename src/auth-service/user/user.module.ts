@@ -14,7 +14,7 @@ console.log(jwtConstants.secret, 'its secret key (:')
         JwtModule.register({
             global: true,
             secret: jwtConstants.secret,
-            signOptions: { expiresIn: '60s' },
+            signOptions: { expiresIn: '6000s' },
         }),
     ],
     exports: [],
