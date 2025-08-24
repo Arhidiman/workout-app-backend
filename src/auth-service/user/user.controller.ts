@@ -1,11 +1,7 @@
 import { Controller, Get, Post, Headers, Body, Req } from "@nestjs/common";
 import { UserService } from "./user.service";
-
-type TUserDto = {
-    firstName: string, 
-    lastName: string, 
-    password: string
-}
+import type { IncomingHttpHeaders } from "http";
+import type { TUserDto } from "./dto";
 
 @Controller('user')
 export class UserController {
@@ -18,7 +14,7 @@ export class UserController {
 
     @Get('statistics')
     async statistics(@Req() req) {
-        console.log('try to sign up')
+        console.log('try to get stats')
         return 'here will be user statistics'
         // return await this.userService.signUp(body)
     }
@@ -32,22 +28,45 @@ export class UserController {
 
     @Post('sign-up')
     async signUp(@Req() req) {
-        console.log('try to sign up')
+        // console.log('try to sign up')
         // return '123'
+        // console.log(req, 'request')
         return await this.userService.signUp(req.body)
     }
 
     @Post('validate')
-    async validate(@Headers() headers: string) {
+    async validate(@Headers() headers: IncomingHttpHeaders) {
 
-        console.log(headers, 'headers')
+        // console.log('validation process')
+
+        // console.log(headers, 'headers')
 
         const token = headers['authorization']?.replace('Bearer', '').trim()
-        console.log(token, 'token')
+        // console.log(token, 'token')
+
+        // console.log(token, 'token')
+
+        const validationResult = await this.userService.validate({ token: token || '' })
+
+        // console.log(validationResult, 'validationResult')
+
+        return headers
+    }
+
+    @Post('refresh')
+    async refresh(@Headers() headers) {
+
+
+        // console.log('validation process')
+
+        // console.log(headers, 'headers')
+
+        const token = headers['authorization']?.replace('Bearer', '').trim()
+        // console.log(token, 'token')
 
         const validationResult = await this.userService.validate(token)
 
-        console.log(validationResult, 'validationResult')
+        // console.log(validationResult, 'validationResult')
 
         return headers
     }

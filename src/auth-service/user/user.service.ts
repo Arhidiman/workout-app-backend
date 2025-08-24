@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common"
+import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { User } from "./user.entity"
 import { JwtService } from '@nestjs/jwt';
 import type { Repository } from "typeorm"
+import type { TUserDto, ValidationData } from "./dto";
 
 
 @Injectable()
@@ -18,16 +19,15 @@ export class UserService {
         return { id: 1, username: 'admin' }
     }
 
-    async signUp(userData) {
+    async signUp(userData: TUserDto) {
 
 
-
-        const { token } = userData
+        console.log(userData, 'user dsata')
 
         const access_token = await this.jwtService.signAsync(userData)
-        // const refresh_token = await this.jwtService.signAsync(userData)
-        // const user = await this.userRepository.create(userData)
-        // await this.userRepository.save(user)
+        const refresh_token = await this.jwtService.signAsync(userData)
+        const user = await this.userRepository.create(userData)
+        await this.userRepository.save(user)
 
         // const result = await this.jwtService.verifyAsync(token)
 
@@ -35,16 +35,12 @@ export class UserService {
         return access_token
     }
 
-    async validate(token: string) {
-
-        console.log(token, 'token')
-
+    async validate({ token }: ValidationData) {
         try {
             await this.jwtService.verifyAsync(token)
         } catch(err) {
-            return err.message
+            console.log(err.message, 'validation error')
+            throw new UnauthorizedException(`Access denied. ${err.message}`)
         }
-
-
     }
 }
