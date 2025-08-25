@@ -11,7 +11,6 @@ import type { IncomingHttpHeaders } from 'http'
 import type { AxiosResponse } from 'axios'
 import type { Request, Response, NextFunction } from 'express'
 
-
 const authBaseUrl = 'http://localhost:8001'
 const validateEndpoint = 'user/validate'
 
@@ -33,56 +32,45 @@ const requestForward = async (method, requestUrl, request: Request): Promise<Axi
 
     const filteredHeaders = filterHeaders(headers, allowedHeaders)
 
-
-    console.log(filteredHeaders, 'filterHeaders')
     if (method === 'get' || method === 'delete') {
         return await axios[method](requestUrl, { headers: filteredHeaders })
     } else {
-        console.log(request.body, 'req body')
         return await axios[method](requestUrl, body, { headers: filteredHeaders })
     }
+}
+
+const isUrlExcluded = (url: string) => notValidatedUrls.some(u => url.includes(u))
+
+const validateAuthorization = async (authHeader: string | undefined) => {
+    if (!authHeader) throw new UnauthorizedException('Credentials not defined')
+    const response = await axios.post(`${authBaseUrl}/${validateEndpoint}`, {}, { headers: { authorization: authHeader } })
+
+    if (response.status < 200 || response.status >= 300) throw new UnauthorizedException('Token not valid')
+    return true
 }
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
 
     async use(request: Request, originalResponse: Response, next: NextFunction) {
-
-        let authorization
-
-        try {
-            authorization = request.headers['authorization']
-
+        try {            
             const originalUrl = request.originalUrl
             const requestUrl = `${authBaseUrl}${originalUrl}`
             const requestMethod = request.method.toLowerCase()
     
-            const mustValidate = !notValidatedUrls.some(url => originalUrl.includes(url))
-    
-            if (!mustValidate) {
-                const response = await requestForward(requestMethod, requestUrl, request)
-                originalResponse.status(response.status).send(response.data)
-            } else {
-                if (!authorization) {
-                    throw new UnauthorizedException('Credentials is not defined')
-                }
-                try {
-                    const authResponse = await axios.post(`${authBaseUrl}/${validateEndpoint}`, {}, { headers: { authorization }})    
+            if (!isUrlExcluded(originalUrl)) { await validateAuthorization(request.headers['authorization']) }   
 
-                    if (authResponse.status >= 100 && authResponse.status <= 300) {                
-                        const response = await requestForward(requestMethod, requestUrl, request)
-                        originalResponse.status(response.status).send(response.data)
-                    }
-                } catch(err) {
-                    if (axios.isAxiosError(err)) {
-                        originalResponse.status(err.status || 500).send(err.response?.data)
-                    } else {
-                        throw new InternalServerErrorException(`${err.message}`)
-                    }
-                }
-            }
+            const response = await requestForward(requestMethod, requestUrl, request)
+            originalResponse.status(response.status).send(response.data)
+            return
         } catch(err) {
-            throw new InternalServerErrorException(`Something wrong. ${err.message}`)
+            if (axios.isAxiosError(err)) {
+                console.log(err.response?.data, 'res dsata')
+                originalResponse.status(err.status || 500).send(err.response?.data)
+                return
+            } 
+
+            throw new InternalServerErrorException(err.message)
         }
     }
 }
