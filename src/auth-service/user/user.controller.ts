@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Headers, Body, Req } from "@nestjs/common";
+import { Controller, Get, Post, Put, Headers, Body, Req } from "@nestjs/common";
 import { UserService } from "./user.service";
 import type { IncomingHttpHeaders } from "http";
 import type { TUserDto } from "./dto";
@@ -14,6 +14,13 @@ export class UserController {
 
     @Get('statistics')
     async statistics(@Req() req) {
+        console.log('try to get stats')
+        return 'here will be user statistics'
+        // return await this.userService.signUp(body)
+    }
+
+    @Put('statistics')
+    async update(@Req() req) {
         console.log('try to get stats')
         return 'here will be user statistics'
         // return await this.userService.signUp(body)

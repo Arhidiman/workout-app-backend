@@ -32,7 +32,7 @@ export class UserService {
         // const result = await this.jwtService.verifyAsync(token)
 
         // console.log(result, '!!!')
-        return access_token
+        return { access_token, refresh_token }
     }
 
     async validate({ token }: ValidationData) {
