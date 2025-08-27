@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './user/user.module'
+import { APP_INTERCEPTOR  } from '@nestjs/core'
+import { TokenInterceptor } from './interceptors/token.interceptor'
 
 @Module({
   imports: [
@@ -19,6 +21,12 @@ import { AuthModule } from './user/user.module'
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TokenInterceptor
+    }
+  ],
 })
 export class AppModule {}

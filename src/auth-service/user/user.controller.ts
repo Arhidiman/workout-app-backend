@@ -1,9 +1,28 @@
-import { Controller, Get, Post, Put, Headers, Body, Req } from "@nestjs/common";
+import { 
+    Controller, 
+    Get, 
+    Post, 
+    Put, 
+    Headers, 
+    Body, 
+    Req,
+    UseInterceptors 
+} from "@nestjs/common";
 import { UserService } from "./user.service";
+import { TokenInterceptor } from "../interceptors/token.interceptor";
 import type { IncomingHttpHeaders } from "http";
+import type { Request } from "express";
 import type { TUserDto } from "./dto";
 
+interface AuthConfiguredRequest extends Request {
+    userAuthData: {
+        firstName: string,
+        lastName: string
+    }
+}
+
 @Controller('user')
+@UseInterceptors(TokenInterceptor)
 export class UserController {
 
     private userService: UserService
@@ -13,9 +32,10 @@ export class UserController {
     }
 
     @Get('statistics')
-    async statistics(@Req() req) {
+    async statistics(@Req() req: AuthConfiguredRequest) {
         console.log('try to get stats')
-        return 'here will be user statistics'
+        console.log(req.userAuthData, 'req userAuthData')
+        return 
         // return await this.userService.signUp(body)
     }
 
@@ -37,7 +57,7 @@ export class UserController {
     async signUp(@Req() req) {
         // console.log('try to sign up')
         // return '123'
-        // console.log(req, 'request')
+        console.log(req.body, 'request body')
         return await this.userService.signUp(req.body)
     }
 
@@ -54,8 +74,6 @@ export class UserController {
         // console.log(token, 'token')
 
         const validationResult = await this.userService.validate({ token: token || '' })
-
-        // console.log(validationResult, 'validationResult')
 
         return headers
     }

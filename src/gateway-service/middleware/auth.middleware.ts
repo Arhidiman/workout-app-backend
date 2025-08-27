@@ -46,6 +46,7 @@ const requestForward = async (method, requestUrl, request: Request): Promise<Axi
 }
 
 const isUrlExcluded = (url: string) => notValidatedUrls.some(u => url.includes(u))
+
 const isAuthUrl = (url: string) => authUrls.some(u => url.includes(u))
 
 const validateAuthorization = async (authHeader: string | undefined) => {
@@ -56,7 +57,6 @@ const validateAuthorization = async (authHeader: string | undefined) => {
     return true
 }
 
-
 const extractTokens = (response: AxiosResponse, url): AuthResponse | undefined => {
     if (isAuthUrl(url)) {
         const { access_token, refresh_token } = response.data
@@ -64,25 +64,26 @@ const extractTokens = (response: AxiosResponse, url): AuthResponse | undefined =
     }
 }
 
-
 const applyTokens = (response: Response, tokens: AuthResponse | undefined) => {
-    if (tokens) {
-        for (let token in tokens) {
-            response.cookie(token, tokens[token], {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                path: '/',
-            })
-        }
+    if (tokens?.access_token) {
+        response.setHeader('authorization', tokens.access_token)
     }
+
+    if (tokens?.refresh_token) {
+        response.cookie('refresh_token', tokens.refresh_token,  {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            path: '/',
+        })
+    }
+
     return response
 }
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-
-    async use(request: Request, originalResponse: Response, next: NextFunction) {
+    async use(request: Request, originalResponse: Response) {
         try {            
             const originalUrl = request.originalUrl
             const requestUrl = `${authBaseUrl}${originalUrl}`
