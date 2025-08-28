@@ -60,31 +60,6 @@ const validateAuthorization = async (authHeader: string | undefined) => {
     return true
 }
 
-const extractTokens = (response: AxiosResponse, url): AuthResponse | undefined => {
-    if (isAuthUrl(url)) {
-        const { access_token, refresh_token } = response.data
-        return { access_token, refresh_token }
-    }
-}
-
-const applyTokens = (response: Response, tokens: AuthResponse | undefined) => {
-    if (tokens?.access_token) {
-        response.setHeader('authorization', tokens.access_token)
-    }
-
-    if (tokens?.refresh_token) {
-        response.cookie('refresh_token', tokens.refresh_token,  {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            path: '/',
-        })
-    }
-
-    return response
-}
-
-
 const applyHeaders = (forwardResponse: AxiosResponse, originalResponse: Response) => {
     for (let header in forwardResponse.headers) {
         const value = forwardResponse.headers[header]
@@ -107,13 +82,7 @@ export class AuthMiddleware implements NestMiddleware {
 
             const response = await requestForward(requestMethod, requestUrl, request)
 
-            const tokens = extractTokens(response, originalUrl)
-
-            // applyTokens(originalResponse, tokens)
-
             applyHeaders(response, originalResponse).status(response.status).send(response.data)
-            // console.log(response.headers, 'headers')
-            // originalResponse.status(response.status).send(response.data)
 
             return
         } catch(err) {

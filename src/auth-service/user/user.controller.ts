@@ -65,7 +65,6 @@ export class UserController {
 
     @Post('sign-up')
     async signUp(@Body() body: SignUpRequest, @Res() response: Response) {
-
         const { access_token, refresh_token} = await this.userService.signUp(body)
         if (!access_token || !refresh_token) throw new UnauthorizedException('Registration error.')
 
