@@ -28,6 +28,9 @@ const allowedHeaders = [
     'cookie'
 ]
 
+const requiredAuthHeaders = ['set-cookie', 'authorization']
+
+
 const filterHeaders = (originalHeaders: IncomingHttpHeaders, allowedHeaders: string[]) => {
     const filteredHeaders = Object.keys(originalHeaders).filter(header => allowedHeaders.includes(header.toLowerCase()))
     return filteredHeaders.reduce((acc, header) => ({ ...acc, [header]: originalHeaders[header] }), {})
@@ -81,6 +84,17 @@ const applyTokens = (response: Response, tokens: AuthResponse | undefined) => {
     return response
 }
 
+
+const applyHeaders = (forwardResponse: AxiosResponse, originalResponse: Response) => {
+    for (let header in forwardResponse.headers) {
+        const value = forwardResponse.headers[header]
+
+        value && originalResponse.setHeader(header, value)
+    }
+
+    return originalResponse
+}
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
     async use(request: Request, originalResponse: Response) {
@@ -95,7 +109,11 @@ export class AuthMiddleware implements NestMiddleware {
 
             const tokens = extractTokens(response, originalUrl)
 
-            applyTokens(originalResponse, tokens).status(response.status).send(response.data)
+            // applyTokens(originalResponse, tokens)
+
+            applyHeaders(response, originalResponse).status(response.status).send(response.data)
+            // console.log(response.headers, 'headers')
+            // originalResponse.status(response.status).send(response.data)
 
             return
         } catch(err) {
@@ -105,6 +123,7 @@ export class AuthMiddleware implements NestMiddleware {
                 return
             } 
 
+            console.log(err)
             throw new InternalServerErrorException(err.message)
         }
     }

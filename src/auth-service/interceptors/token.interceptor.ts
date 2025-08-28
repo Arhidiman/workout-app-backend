@@ -1,6 +1,17 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
+import type { Request } from 'express';
+
+export interface AuthConfiguredRequest<Params, ResBody = any, ReqBody = any> extends Request<Params, ResBody, ReqBody> {
+    userAuthData: {
+        id: number,
+        firstName: string,
+        lastName: string,
+        iat: number,
+        exp: number
+    }
+}
 
 @Injectable()
 export class TokenInterceptor implements NestInterceptor {

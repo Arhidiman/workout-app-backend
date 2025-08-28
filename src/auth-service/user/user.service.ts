@@ -2,9 +2,15 @@ import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { User } from "./user.entity"
 import { JwtService } from '@nestjs/jwt';
+import type { Response } from "express";
 import type { Repository } from "typeorm"
-import type { TUserDto, ValidationData } from "./dto";
-
+import type { 
+    SignInRequest, 
+    SignInResponse, 
+    SignUpResponse, 
+    UserDto, 
+    ValidationData 
+} from "./types";
 
 @Injectable()
 export class UserService {
@@ -15,11 +21,22 @@ export class UserService {
         private jwtService: JwtService
     ) {}
 
-    async signIn() {
-        return { id: 1, username: 'admin' }
+    async signIn(request: SignInRequest): Promise<SignInResponse | undefined> {
+        const { firstName, password } = request
+
+        const user = await this.userRepository.findOne({ where: { firstName, password }})
+
+        const jwtPayload = { id: user?.id, firstName, password}
+
+        if (user) {
+            return {
+                access_token: await this.jwtService.signAsync(jwtPayload),
+                refresh_token: await this.jwtService.signAsync(jwtPayload)
+            }
+        }
     }
 
-    async signUp(userData: TUserDto) {     
+    async signUp(userData: UserDto): Promise<SignUpResponse> {     
         const user = await this.userRepository.create(userData)
         const savedUser = await this.userRepository.save({ ...user })
         const { firstName, lastName, id } = savedUser

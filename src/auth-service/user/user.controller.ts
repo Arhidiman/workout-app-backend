@@ -6,20 +6,17 @@ import {
     Headers, 
     Body, 
     Req,
-    UseInterceptors 
+    UseInterceptors,
+    UnauthorizedException,
+    Res
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { TokenInterceptor } from "../interceptors/token.interceptor";
 import type { IncomingHttpHeaders } from "http";
-import type { Request } from "express";
-import type { TUserDto } from "./dto";
-
-interface AuthConfiguredRequest extends Request {
-    userAuthData: {
-        firstName: string,
-        lastName: string
-    }
-}
+import type { UserDto, SignInRequest, SignUpRequest, SignInResponse } from "./types";
+import type { AuthConfiguredRequest } from "../interceptors/token.interceptor";
+import type { Response } from "express";
+import { ref } from "process";
 
 @Controller('user')
 @UseInterceptors(TokenInterceptor)
@@ -32,9 +29,9 @@ export class UserController {
     }
 
     @Get('statistics')
-    async statistics(@Req() req: AuthConfiguredRequest) {
+    async statistics(@Req() req: AuthConfiguredRequest<any, any, undefined>) {
         console.log('try to get stats')
-        console.log(req.userAuthData, 'req userAuthData')
+        console.log(req.body, 'req userAuthData')
         return 
         // return await this.userService.signUp(body)
     }
@@ -47,31 +44,46 @@ export class UserController {
     }
 
     @Post('sign-in')
-    async signIn(@Body() body: TUserDto) {
-        console.log('try to sign in')
-        // return 'sign in response'
-        return await this.userService.signIn()
+    async signIn(@Body() body: SignInRequest, @Res() response: Response) {
+        const { access_token, refresh_token} = await this.userService.signIn(body) || {}
+
+        if (!access_token || !refresh_token) throw new UnauthorizedException('Incorrect login or password')
+
+        console.log(access_token)
+
+        access_token && response.setHeader('authorization', `Bearer ${access_token}`)
+
+        refresh_token && response.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60
+        })
+
+        return response.status(200).send()
     }
 
     @Post('sign-up')
-    async signUp(@Req() req) {
-        // console.log('try to sign up')
-        // return '123'
-        console.log(req.body, 'request body')
-        return await this.userService.signUp(req.body)
+    async signUp(@Body() body: SignUpRequest, @Res() response: Response) {
+
+        const { access_token, refresh_token} = await this.userService.signUp(body)
+        if (!access_token || !refresh_token) throw new UnauthorizedException('Registration error.')
+
+        access_token && response.setHeader('authorization', `Bearer ${access_token}`)
+
+        refresh_token && response.cookie('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60
+        })
+
+        return response.status(200).send()
     }
 
     @Post('validate')
     async validate(@Headers() headers: IncomingHttpHeaders) {
-
-        // console.log('validation process')
-
-        // console.log(headers, 'headers')
-
         const token = headers['authorization']?.replace('Bearer', '').trim()
-        // console.log(token, 'token')
-
-        // console.log(token, 'token')
 
         const validationResult = await this.userService.validate({ token: token || '' })
 
