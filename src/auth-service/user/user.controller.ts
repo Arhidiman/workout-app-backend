@@ -17,16 +17,18 @@ import type { UserDto, SignInRequest, SignUpRequest, SignInResponse } from "./ty
 import type { AuthConfiguredRequest } from "../interceptors/token.interceptor";
 import type { Response } from "express";
 import { ref } from "process";
+import { SessionService } from "../session/session.service";
+import { Session } from "../session/session.entity";
 
 @Controller('user')
 @UseInterceptors(TokenInterceptor)
 export class UserController {
 
-    private userService: UserService
     
-    constructor (userService: UserService) {
-        this.userService = userService
-    }
+    constructor (
+        private userService: UserService,
+        private sessionService: SessionService
+    ) {}
 
     @Get('statistics')
     async statistics(@Req() req: AuthConfiguredRequest<any, any, undefined>) {
@@ -44,10 +46,15 @@ export class UserController {
     }
 
     @Post('sign-in')
-    async signIn(@Body() body: SignInRequest, @Res() response: Response) {
-        const { access_token, refresh_token} = await this.userService.signIn(body) || {}
+    async signIn(@Req() req: AuthConfiguredRequest<any, any, SignUpRequest>, @Res() response: Response) {
+        const { access_token, refresh_token} = await this.userService.signIn(req.body) || {}
 
         if (!access_token || !refresh_token) throw new UnauthorizedException('Incorrect login or password')
+
+        const session: Session = await this.sessionService.create({
+            userId: 6,
+            refresh_token: refresh_token
+        })
 
         console.log(access_token)
 
@@ -67,6 +74,11 @@ export class UserController {
     async signUp(@Body() body: SignUpRequest, @Res() response: Response) {
         const { access_token, refresh_token} = await this.userService.signUp(body)
         if (!access_token || !refresh_token) throw new UnauthorizedException('Registration error.')
+
+        const session: Session = await this.sessionService.create({
+            userId: 7,
+            refresh_token: refresh_token
+        })
 
         access_token && response.setHeader('authorization', `Bearer ${access_token}`)
 

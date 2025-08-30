@@ -9,7 +9,8 @@ export interface AuthConfiguredRequest<Params, ResBody = any, ReqBody = any> ext
         firstName: string,
         lastName: string,
         iat: number,
-        exp: number
+        exp: number,
+        refresh_token
     }
 }
 
@@ -22,6 +23,11 @@ export class TokenInterceptor implements NestInterceptor {
     const headers = request.headers
     const access_token = headers['authorization']?.replace('Bearer', '').trim()
     const userData = this.jwtService.decode(access_token)
+
+
+    const refresh_token = request.headers['cookie']
+
+    console.log(refresh_token, 'refresh token')
 
     request.userAuthData = {
         ...userData,

@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { APP_INTERCEPTOR  } from '@nestjs/core'
+import { TokenInterceptor } from './interceptors/token.interceptor'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './user/user.module'
-import { APP_INTERCEPTOR  } from '@nestjs/core'
-import { TokenInterceptor } from './interceptors/token.interceptor'
+import { SessionController } from './session/session.controller'
+import { SessionModule } from './session/session.module'
 
 @Module({
   imports: [
     AuthModule,
+    SessionModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
