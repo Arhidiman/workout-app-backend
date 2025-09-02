@@ -20,22 +20,13 @@ export class SessionService {
     }
 
     async create(data: CreateSessionRequest): Promise<any> { 
-        
-        const sessionData = {
-            userId: 6,
-            refresh_token: 'lok lel'
-        }
         const session = this.sessionRepository.create(data)
-
-
-
-        console.log(session, 'session')
         const savedSession = await this.sessionRepository.save(session)
+        return savedSession
+    }
 
-        console.log(savedSession, 'savedSession')
-
-        console.log('after creating session')
-        return session
+    async getById(id: number) {
+        return this.sessionRepository.findOne({ where: { userId: id } })
     }
 
     async delete() {

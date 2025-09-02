@@ -7,6 +7,8 @@ import { AppService } from './app.service'
 import { AuthModule } from './user/user.module'
 import { SessionController } from './session/session.controller'
 import { SessionModule } from './session/session.module'
+import { AuthMiddleware } from './middleware/auth.middleware'
+import type { MiddlewareConsumer } from '@nestjs/common'
 
 @Module({
   imports: [
@@ -32,4 +34,17 @@ import { SessionModule } from './session/session.module'
     }
   ],
 })
-export class AppModule {}
+export class AppModule {
+
+    configure(consumer: MiddlewareConsumer) {
+      try {
+        consumer
+            .apply(AuthMiddleware)
+            .forRoutes('/user/session')
+      } catch(err) {
+        console.log(err.message)
+      }
+     
+    } 
+
+}

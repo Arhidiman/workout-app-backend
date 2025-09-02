@@ -7,9 +7,11 @@ import {
     Headers, 
     Body, 
     Req,
+    Param,
     UseInterceptors,
     UnauthorizedException,
-    Res
+    Res,
+    ForbiddenException
 } from "@nestjs/common";
 import { SessionService } from "./session.service";
 import { TokenInterceptor } from "../interceptors/token.interceptor";
@@ -17,6 +19,7 @@ import type { IncomingHttpHeaders } from "http";
 import type { CreateSessionRequest } from "./types";
 import type { AuthConfiguredRequest } from "../interceptors/token.interceptor";
 import type { Response } from "express";
+import { JwtService } from "@nestjs/jwt";
 
 @Controller('user/session')
 @UseInterceptors(TokenInterceptor)
@@ -24,7 +27,8 @@ export class SessionController {
 
     
     constructor (
-        private sessionService: SessionService
+        private sessionService: SessionService,
+        private jwtService: JwtService
     ) {}
 
     @Get('all')
@@ -36,6 +40,27 @@ export class SessionController {
     async create(@Req() req: AuthConfiguredRequest<any, any, any>) {
         console.log(req.headers, 'session create headers')
         return await this.sessionService.create({ userId: req.userAuthData.id, refresh_token: '123' })
+    }
+
+    @Get('/:id')
+    async getOne(@Req() req) {
+
+        const getAccessToken = (request: Request) => {
+            const authHeader = request.headers['authorization']
+            return authHeader?.split(' ')[1]
+        }
+
+        const getRefreshToken = (request: Request) => {
+            const cookieHeader = request.headers['cookie']
+            return cookieHeader
+                ?.split(';')
+                .find(c => c.includes('refresh_token'))
+                .split('=')[1]
+        }
+
+
+
+        return this.sessionService.getById(req.params.id)
     }
 
     @Put('/:id')

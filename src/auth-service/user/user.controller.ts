@@ -49,14 +49,14 @@ export class UserController {
     async signIn(@Req() req: AuthConfiguredRequest<any, any, SignUpRequest>, @Res() response: Response) {
         const { access_token, refresh_token} = await this.userService.signIn(req.body) || {}
 
-        if (!access_token || !refresh_token) throw new UnauthorizedException('Incorrect login or password')
 
-        const session: Session = await this.sessionService.create({
-            userId: 6,
-            refresh_token: refresh_token
-        })
+        // const session: Session = await this.sessionService.create({
+        //     userId: 6,
+        //     refresh_token: refresh_token
+        // })
 
         console.log(access_token)
+        
 
         access_token && response.setHeader('authorization', `Bearer ${access_token}`)
 
@@ -84,9 +84,9 @@ export class UserController {
 
         refresh_token && response.cookie('refresh_token', refresh_token, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 1000 * 60 * 60
+            secure: false, // true если https
+            sameSite: 'lax', // или 'none' если нужны кросс-доменные запросы
+            maxAge: 3600 * 1000,
         })
 
         return response.status(200).send()

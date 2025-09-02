@@ -78,7 +78,9 @@ export class AuthMiddleware implements NestMiddleware {
             const requestUrl = `${authBaseUrl}${originalUrl}`
             const requestMethod = request.method.toLowerCase()
     
-            if (!isUrlExcluded(originalUrl)) { await validateAuthorization(request.headers['authorization']) }   
+            if (!isUrlExcluded(originalUrl)) { await validateAuthorization(request.headers['authorization']) }
+            
+            console.log(request.headers, 'request headers')
 
             const response = await requestForward(requestMethod, requestUrl, request)
 
@@ -88,11 +90,12 @@ export class AuthMiddleware implements NestMiddleware {
         } catch(err) {
             if (axios.isAxiosError(err)) {
                 console.log(err.response?.data, 'res dsata')
+                // console.log(err, 'res error')
                 originalResponse.status(err.status || 500).send(err.response?.data)
                 return
             } 
 
-            console.log(err)
+            console.log(err, 'not axios error')
             throw new InternalServerErrorException(err.message)
         }
     }

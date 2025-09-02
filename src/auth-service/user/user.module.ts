@@ -16,13 +16,11 @@ console.log(jwtConstants.secret, 'its secret key (:')
         JwtModule.register({
             global: true,
             secret: jwtConstants.secret,
-            signOptions: { expiresIn: '6000s' },
+            signOptions: { expiresIn: '60s' },
         }),
     ],
     exports: [],
     controllers: [UserController],
     providers: [UserService]
 })
-export class AuthModule {
-    
-}
+export class AuthModule {}

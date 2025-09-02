@@ -10,7 +10,7 @@ export interface AuthConfiguredRequest<Params, ResBody = any, ReqBody = any> ext
         lastName: string,
         iat: number,
         exp: number,
-        refresh_token
+        refresh_token: string
     }
 }
 
@@ -27,10 +27,13 @@ export class TokenInterceptor implements NestInterceptor {
 
     const refresh_token = request.headers['cookie']
 
-    console.log(refresh_token, 'refresh token')
+    // console.log(refresh_token, 'refresh token')
 
+
+    console.log('intercept!!!')
     request.userAuthData = {
         ...userData,
+        refresh_token
     };
 
     return next.handle()
