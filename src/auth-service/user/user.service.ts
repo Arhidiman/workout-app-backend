@@ -7,9 +7,9 @@ import type { Response } from "express";
 import type { Repository } from "typeorm"
 import type { 
     SignInRequest, 
+    SignUpRequest,
     SignInResponse, 
     SignUpResponse, 
-    UserDto, 
     ValidationData 
 } from "./types";
 
@@ -24,41 +24,44 @@ export class UserService {
 
     async signIn(request: SignInRequest): Promise<SignInResponse | undefined> {
         const { firstName, password } = request
-
         const user = await this.userRepository.findOne({ where: { firstName, password }})
 
         if (!user) throw new UnauthorizedException('Incorrect login or password')
-
-
+            
         const jwtPayload = { id: user?.id, firstName, password }
 
-        if (user) {
-            return {
-                access_token: await this.jwtService.signAsync(jwtPayload),
-                refresh_token: await this.jwtService.signAsync(jwtPayload, { expiresIn: '1d' })
-            }
-        }
+        if (user) return this.generateTokenPair(jwtPayload)
     }
 
-    async signUp(userData: UserDto): Promise<SignUpResponse> {     
+    async signUp(userData: SignUpRequest): Promise<SignUpResponse> {            
         const user = await this.userRepository.create(userData)
         const savedUser = await this.userRepository.save({ ...user })
         const { firstName, lastName, id } = savedUser
 
         const userAuthData = { firstName, lastName, id }
-        const access_token = await this.jwtService.signAsync(userAuthData)
-        const refresh_token = await this.jwtService.signAsync(userAuthData, { expiresIn: '1d' })
 
-        return { access_token, refresh_token }
+        return this.generateTokenPair(userAuthData)
     }
 
-    async validate({ token }: ValidationData) {
+    async validate(token: string) {
         try {
             await this.jwtService.verifyAsync(token)
     
         } catch(err) {
             console.log(err.message, 'validation error')
             throw new UnauthorizedException(`Access denied. ${err.message}`)
+        }
+    }
+
+    // TODO: допилить
+    async refresh() {
+        return this.generateTokenPair({})
+    }
+
+    private async generateTokenPair(payload: any, refreshInterval: string = '1d') {
+        return {
+            access_token: await this.jwtService.signAsync(payload),
+            refresh_token: await this.jwtService.signAsync(payload, { expiresIn: refreshInterval })
         }
     }
 }

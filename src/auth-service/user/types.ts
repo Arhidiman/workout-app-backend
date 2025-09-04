@@ -9,12 +9,6 @@ export type SignUpResponse = {
 
 export type SignInResponse = SignUpResponse
 
-export type UserDto = {
-    firstName: string, 
-    lastName: string, 
-    password: string
-}
-
 
 export type SignUpRequest = Omit<User, 'id' | 'access_token' | 'refresh_token'>
 export type SignInRequest = Omit<SignUpRequest, 'lastName'>

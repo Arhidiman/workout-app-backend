@@ -73,6 +73,8 @@ const applyHeaders = (forwardResponse: AxiosResponse, originalResponse: Response
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
     async use(request: Request, originalResponse: Response) {
+
+        console.log(request, 'request recieved')
         try {            
             const originalUrl = request.originalUrl
             const requestUrl = `${authBaseUrl}${originalUrl}`

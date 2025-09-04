@@ -37,18 +37,19 @@ export class AuthMiddleware implements NestMiddleware {
     constructor(private jwtService: JwtService) {}
 
     async use(request: AuthConfiguredRequest<any, any, any>, response: Response, next: NextFunction) {
+
+        console.log(request.headers, 'req headers')
         const access_token = this.getAccessToken(request)
         const refresh_token = this.getRefreshToken(request)
         try {
             this.jwtService.verify(access_token)
             this.jwtService.verify(refresh_token)
-
             next()
         } catch(err) {
 
             if (err.message && err.message.toLowerCase().includes('jwt expired')) {
                 throw new ForbiddenException(err.message)
-            } else throw err
+            } else throw new Error(`Auth middleware error.${err.message}`)
         }
 
     }

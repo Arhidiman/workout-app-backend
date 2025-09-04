@@ -5,8 +5,9 @@ import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: true,
-    exposedHeaders: ['Authorization', 'Set-Cookie'], // 👈 разрешаем клиенту читать этот хедер
+    origin: 'http://localhost:5173',
+    exposedHeaders: ['Authorization', 'Set-Cookie', 'Access-Control-Allow-Credentials'], // 👈 разрешаем клиенту читать этот хедер
+    credentials: true,
   });
 
   console.log(process.env.PORT, 'port')
