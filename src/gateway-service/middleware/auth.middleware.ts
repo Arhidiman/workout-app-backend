@@ -20,7 +20,7 @@ const authBaseUrl = 'http://localhost:8001'
 const validateEndpoint = 'user/validate'
 
 const notValidatedUrls = ['user/sign-in', 'user/sign-up']
-const authUrls = ['user/sign-in', 'user/sign-up']
+const authUrls = ['user/sign-in', 'user/sign-up', 'user/refresh']
 
 const allowedHeaders = [
     'content-type',
