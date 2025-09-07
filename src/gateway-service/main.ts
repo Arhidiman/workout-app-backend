@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: 'http://localhost:5173',
-    exposedHeaders: ['Authorization', 'Set-Cookie', 'Access-Control-Allow-Credentials'], // 👈 разрешаем клиенту читать этот хедер
+    exposedHeaders: ['Authorization', 'Set-Cookie'],
     credentials: true,
   });
 

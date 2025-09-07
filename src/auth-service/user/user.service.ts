@@ -3,18 +3,15 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { JwtService } from '@nestjs/jwt';
 import { User } from "./user.entity"
 import { SessionService } from "../session/session.service";
-import type { Response } from "express";
 import type { Repository } from "typeorm"
 import type { 
     SignInRequest, 
     SignUpRequest,
     SignInResponse, 
     SignUpResponse, 
-    ValidationData, 
     JWTAuthPayload,
     AuthResponse
 } from "./types";
-import { ref } from "process";
 
 @Injectable()
 export class UserService {
@@ -47,15 +44,12 @@ export class UserService {
         }
     }
 
-    // TODO: допилить
     async refresh(refresh_token: string) {
-
         const { id, firstName, lastName }: JWTAuthPayload = await this.jwtService.decode(refresh_token)
-
-        return this.generateTokenPair({ id, firstName, lastName })
+        return await this.createUserSession({ id, firstName, lastName })
     }
 
-    private async createUserSession(user: User): Promise<AuthResponse> {
+    private async createUserSession(user: User | JWTAuthPayload): Promise<AuthResponse> {
         const { id, firstName, lastName } = user
 
         const jwtPayload: JWTAuthPayload = { id, firstName, lastName }
@@ -66,7 +60,7 @@ export class UserService {
         return tokens
     }
 
-    private async generateTokenPair(payload: JWTAuthPayload, refreshInterval: string = '1d') {
+    private async generateTokenPair(payload: JWTAuthPayload, refreshInterval: string = '60s') {
         return {
             access_token: await this.jwtService.signAsync(payload),
             refresh_token: await this.jwtService.signAsync(payload, { expiresIn: refreshInterval })

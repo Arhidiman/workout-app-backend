@@ -30,22 +30,17 @@ export class UserController {
 
     @Post('refresh')
     async refresh(@Req() request: Request, @Res() response: Response) {
-
-        const token = request.headers['cookie']
-
-        console.log(token, 'refresh token')
-
-        return 'refreshed !!!!'
-        // const { access_token, refresh_token} = await this.userService.refresh(token) || {}  
-        // this.authResponse(response, { access_token, refresh_token })
+        const token = request.headers['cookie']?.split(';').find(c => c.includes('refresh_token')).split('=')[1]
+        await this.userService.validate(token)
+        const { access_token, refresh_token} = await this.userService.refresh(token) || {}  
+        this.authResponse(response, { access_token, refresh_token })
     }
 
     @Post('validate')
-    async validate(@Headers() headers: IncomingHttpHeaders) {
-
+    async validate(@Headers() headers: IncomingHttpHeaders) {        
         console.log('try to validate token')
         const token = headers['authorization']?.replace('Bearer', '').trim()
-        this.userService.validate(token || '' )
+        await this.userService.validate(token || '' )
         return
     }
 
