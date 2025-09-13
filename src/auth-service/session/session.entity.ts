@@ -16,25 +16,27 @@ import {
 
 @Entity('users_sessions')
 export class Session {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'int'})
     id: number
 
     @Column({ type: 'number'})
-    userId: number
+    user_id: number
+
+    
+    @Column({ type: 'timestamp', nullable: false })
+    created_at: Date
 
     @Column({ type: 'text', nullable: false })
     refresh_token: string
 
-    @Column({ type: 'timestamp', nullable: false })
-    createdAt: Date
 
     @ManyToOne(() => User, user => user.id)
-    // @JoinColumn({ name: 'userId' })
+    @JoinColumn({ name: 'user_id' })
     user: User
 
     @BeforeInsert()
     generateCode() {
-        this.createdAt = new Date()
+        this.created_at = new Date()
     }
 }
 

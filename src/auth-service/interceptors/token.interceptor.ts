@@ -6,7 +6,7 @@ import type { Request } from 'express';
 export interface AuthConfiguredRequest<Params, ResBody = any, ReqBody = any> extends Request<Params, ResBody, ReqBody> {
     userAuthData: {
         id: number,
-        firstName: string,
+        nUame: string,
         lastName: string,
         iat: number,
         exp: number,

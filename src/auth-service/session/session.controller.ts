@@ -30,7 +30,7 @@ export class SessionController {
     @Post('create')
     async create(@Req() req: AuthConfiguredRequest<any, any, any>) {
         console.log(req.headers, 'session create headers')
-        return await this.sessionService.create({ userId: req.userAuthData.id, refresh_token: '123' })
+        return await this.sessionService.create({ user_id: req.userAuthData.id, refresh_token: '123' })
     }
 
     @Get('/:id')

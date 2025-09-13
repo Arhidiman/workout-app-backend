@@ -26,7 +26,7 @@ export class SessionService {
     }
 
     async getById(id: number) {
-        return this.sessionRepository.findOne({ where: { userId: id } })
+        return this.sessionRepository.findOne({ where: { user_id: id } })
     }
 
     async delete() {

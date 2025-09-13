@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common"
+import { Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { JwtService } from '@nestjs/jwt';
 import { User } from "./user.entity"
@@ -12,26 +12,37 @@ import type {
     JWTAuthPayload,
     AuthResponse
 } from "./types";
+import { Role } from "../role/role.entity";
 
 @Injectable()
 export class UserService {
     constructor(
+        private sessionService: SessionService,
+
+        private jwtService: JwtService,
+
         @InjectRepository(User) 
         private userRepository: Repository<User>,
-        private sessionService: SessionService,
-        private jwtService: JwtService
+
+        @InjectRepository(Role) 
+        private roleRepository: Repository<Role>,
     ) {}
 
     async signIn(request: SignInRequest): Promise<SignInResponse> {
-        const { firstName, password } = request
-        const user = await this.userRepository.findOne({ where: { firstName, password }})
+        const { user_name, password } = request
+        const user = await this.userRepository.findOne({ where: { user_name, password }})
         if (!user) throw new UnauthorizedException('Incorrect login or password')  
         return await this.createUserSession(user)
     }
 
     async signUp(userData: SignUpRequest): Promise<SignUpResponse> {            
-        const user = await this.userRepository.create(userData)
-        const savedUser = await this.userRepository.save({ ...user })
+        const defaultRole = 'user'
+        const role = await this.roleRepository.findOne({ where: { role_name: defaultRole }})
+
+        if (!role) throw new InternalServerErrorException(`Role "${defaultRole}" does not extist`)
+        const testUser = await this.userRepository.create({ ...userData, role_id: role.id })
+        const savedUser = await this.userRepository.save(testUser)
+
         return await this.createUserSession(savedUser)
     }
 
@@ -45,17 +56,27 @@ export class UserService {
     }
 
     async refresh(refresh_token: string) {
-        const { id, firstName, lastName }: JWTAuthPayload = await this.jwtService.decode(refresh_token)
-        return await this.createUserSession({ id, firstName, lastName })
+        const { id, user_name, user_role }: JWTAuthPayload = await this.jwtService.decode(refresh_token)
+        return await this.createUserSession({ id, user_name, user_role })
     }
 
     private async createUserSession(user: User | JWTAuthPayload): Promise<AuthResponse> {
-        const { id, firstName, lastName } = user
+        const { id, user_name } = user
 
-        const jwtPayload: JWTAuthPayload = { id, firstName, lastName }
+        const role = await this.userRepository 
+            .createQueryBuilder('app_users') 
+            .innerJoinAndSelect('app_users.role_id', 'role') 
+            .select('role.role_name AS "user_role"')
+            .where('app_users.id = :id', { id }) 
+            .getRawOne()
+
+
+        const { user_role } = role
+
+        if (!user_role) throw new InternalServerErrorException(`Cannot find user's ${user_name} role`)
+        const jwtPayload: JWTAuthPayload = { id, user_name, user_role }
         const tokens = await this.generateTokenPair(jwtPayload)
-
-        await this.sessionService.create({ userId: user.id, refresh_token: tokens.refresh_token})
+        await this.sessionService.create({ user_id: user.id, refresh_token: tokens.refresh_token})
 
         return tokens
     }

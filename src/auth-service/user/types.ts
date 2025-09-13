@@ -9,8 +9,8 @@ export type SignUpResponse = {
 export type SignInResponse = SignUpResponse
 export type AuthResponse = SignInResponse
 
-export type SignUpRequest = Omit<User, 'id' | 'access_token' | 'refresh_token'>
-export type SignInRequest = Omit<SignUpRequest, 'lastName'>
+export type SignUpRequest = Omit<User, 'id' | 'role' | 'role_id'>
+export type SignInRequest = SignUpRequest
 
 export type ValidationData = {
     token: string
@@ -18,8 +18,8 @@ export type ValidationData = {
 
 export type JWTAuthPayload = {
     id: number,
-    firstName: string,
-    lastName: string
+    user_name: string,
+    user_role: string
 }
 
 
