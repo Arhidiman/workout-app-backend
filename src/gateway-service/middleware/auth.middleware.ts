@@ -27,6 +27,9 @@ const filterHeaders = (originalHeaders: IncomingHttpHeaders, allowedHeaders: str
 }
 
 const requestForward = async (method, requestUrl, request: Request): Promise<AxiosResponse> => {
+
+    console.log(requestUrl, 'forward request url')
+
     const { headers, body } = request
 
     const filteredHeaders = filterHeaders(headers, allowedHeaders)

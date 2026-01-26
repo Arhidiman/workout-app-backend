@@ -22,12 +22,14 @@
     "dev-auth": "set PORT=8001 && nodemon --config nodemon.auth.json"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/jwt": "^11.0.0",
-    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/common": "^11.1.12",
+    "@nestjs/core": "^11.1.12",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/microservices": "^11.1.12",
+    "@nestjs/platform-express": "^11.1.12",
     "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.10.0",
+    "dotenv": "^17.2.2",
     "http-proxy-middleware": "^3.0.5",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",

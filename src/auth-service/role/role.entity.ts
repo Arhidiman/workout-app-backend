@@ -1,18 +1,11 @@
-import { User } from "../user/user.entity";
-
 import { 
     Entity, 
     Column, 
     PrimaryGeneratedColumn, 
-    Unique,
-    ManyToOne,
-    OneToMany,
-    JoinColumn,
-    ForeignKey,
-    ColumnType,
-    BeforeInsert
+    Unique
 } from "typeorm";
 
+@Unique(['role_name'])
 @Entity('user_roles')
 export class Role {
     @PrimaryGeneratedColumn()
