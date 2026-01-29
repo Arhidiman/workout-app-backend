@@ -36,6 +36,9 @@ export class TokenInterceptor implements NestInterceptor {
         refresh_token
     };
 
+    console.log(request.body, 'req body')
+    console.log(request.originalUrl, 'req body')
+
     return next.handle()
   }
 }

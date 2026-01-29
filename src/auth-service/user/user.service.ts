@@ -29,6 +29,7 @@ export class UserService {
     ) {}
 
     async signIn(request: SignInRequest): Promise<SignInResponse> {
+        console.log(request, 'sign in request')
         const { user_name, password } = request
         const user = await this.userRepository.findOne({ where: { user_name, password }})
         if (!user) throw new UnauthorizedException('Incorrect login or password')  
@@ -84,7 +85,7 @@ export class UserService {
     private async generateTokenPair(payload: JWTAuthPayload, refreshInterval: string = '60s') {
         return {
             access_token: await this.jwtService.signAsync(payload),
-            refresh_token: await this.jwtService.signAsync(payload, { expiresIn: refreshInterval })
+            refresh_token: await this.jwtService.signAsync(payload)
         }
     }
 }

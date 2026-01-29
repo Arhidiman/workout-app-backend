@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
 import type { IncomingHttpHeaders } from 'http';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
 @Injectable()
 export class AppService {
@@ -17,30 +17,46 @@ export class AppService {
   ]
 
   private origins = {
-    auth: 'http://localhost/8001',
-    core: 'http://localhost/8002',
+    auth: 'http://localhost:8001',
+    core: 'http://localhost:8002',
   }
 
-  async proxyAuth(req: Request) {
-    return await this.requestForward(req)
+  async proxy(req: Request, res: Response) {
+    return await this.requestForward(req, res)
   } 
 
-  async proxyMain(req: Request) {
-    return await this.requestForward(req)
-  } 
 
-  private async requestForward (request: Request): Promise<AxiosResponse> {
-    const url = new URL(request.originalUrl)
-    const service = this.getServiceName(url.pathname)
-    const targetUrl = `${this.origins[service]}/${request.originalUrl}`
+  private async requestForward (request: Request, response: Response): Promise<any> {
+    const service = this.getServiceName(request.originalUrl)
+
+    console.log(request.originalUrl,service)
+    const targetUrl = `${this.origins[service]}${request.originalUrl}`
     const method = request.method.toLowerCase()
     const { headers, body } = request
     const filteredHeaders = this.filterHeaders(headers, this.allowedHeaders)
 
+    console.log(targetUrl, 'target URL')
+    console.log(filteredHeaders, 'filteredHeaders')
+
     if (method === 'get' || method === 'delete') {
-        return await axios[method](targetUrl, { headers: filteredHeaders })
+        const res = await axios[method](targetUrl, { headers: filteredHeaders })
+        return res.data
     } else {
-        return await axios[method](targetUrl, body, { headers: filteredHeaders })
+        const axiosResponse = await axios[method](targetUrl, body, { headers: filteredHeaders })
+
+      this.applyHeaders(response, axiosResponse.headers)
+      return axiosResponse.data
+    }
+  }
+
+  private applyHeaders(
+    response: Response,
+    headers: IncomingHttpHeaders
+  ) {
+    for (const [key, value] of Object.entries(headers)) {
+      if (value !== undefined) {
+        response.setHeader(key, value);
+      }
     }
   }
 
@@ -50,6 +66,6 @@ export class AppService {
   }
 
   private getServiceName(path: string) {  
-    return path.split('/').map(u => u)[0]
+    return path.split('/').filter(u => u)[0]
   }
 }

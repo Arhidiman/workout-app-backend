@@ -5,6 +5,8 @@ import { RolesGuard } from './guards/roles.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './guards/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { secret } from './JWT';
 
 // @Module({})
 // export class AppModule implements NestModule {
@@ -21,6 +23,13 @@ import { AuthGuard } from './guards/auth.guard';
 // }
 
 @Module({
+  imports: [
+    JwtModule.register({
+      global: true,
+      secret,
+      signOptions: { expiresIn: '60s' },
+    }),
+  ],
   providers: [
     {
       provide: APP_GUARD,

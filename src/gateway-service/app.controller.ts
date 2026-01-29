@@ -1,7 +1,7 @@
-import { Controller, Get, All, UseGuards } from '@nestjs/common';
+import { Controller, Get, All, UseGuards, Req, Res } from '@nestjs/common';
 import { AppService } from './app.service'
 import { AuthGuard } from './guards/auth.guard';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
 @Controller()
 // @UseGuards(AuthGuard)
@@ -9,7 +9,10 @@ export class AppController {
     constructor(private readonly appService: AppService) {}
 
     @All('*')
-    handle(req: Request) {
-        return this.appService.proxyAuth(req);
+    async handle(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        console.log('@ get request')
+
+
+        return await this.appService.proxy(req, res);
     }
 }

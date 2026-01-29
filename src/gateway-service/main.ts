@@ -9,7 +9,7 @@ config({ path: path.resolve(process.cwd(), '.env')})
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalGuards(new AuthGuard())
+  // app.useGlobalGuards(AuthGuard)
 
   app.enableCors({
     origin: 'http://localhost:5173',

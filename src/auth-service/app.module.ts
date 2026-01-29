@@ -7,6 +7,7 @@ import { AppService } from './app.service'
 import { AuthModule } from './user/user.module'
 import { SessionController } from './session/session.controller'
 import { SessionModule } from './session/session.module'
+import { UserController } from './user/user.controller'
 
 @Module({
   imports: [
@@ -23,9 +24,9 @@ import { SessionModule } from './session/session.module'
       synchronize: true,
     }),
   ],
-  controllers: [AppController],
+  // controllers: [AppController],
   providers: [
-    AppService,
+    // AppService,
     {
       provide: APP_INTERCEPTOR,
       useClass: TokenInterceptor
