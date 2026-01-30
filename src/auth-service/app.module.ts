@@ -8,6 +8,9 @@ import { AuthModule } from './user/user.module'
 import { SessionController } from './session/session.controller'
 import { SessionModule } from './session/session.module'
 import { UserController } from './user/user.controller'
+import { ConfigModule } from '@nestjs/config'
+const path = require('path')
+
 
 @Module({
   imports: [
@@ -23,6 +26,11 @@ import { UserController } from './user/user.controller'
       entities: [__dirname + '/**/*.entity.{ts,js}'],
       synchronize: true,
     }),
+    // TODO: configService чтобы можно было делать так: const port = this.config.get<number>('API_GATEWAY_PORT')
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: path.resolve(process.cwd(), '.env'), 
+    })
   ],
   // controllers: [AppController],
   providers: [

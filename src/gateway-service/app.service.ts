@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import type { AxiosResponse } from 'axios';
 import type { IncomingHttpHeaders } from 'http';
 import type { Request, Response } from 'express';
@@ -28,24 +28,25 @@ export class AppService {
 
   private async requestForward (request: Request, response: Response): Promise<any> {
     const service = this.getServiceName(request.originalUrl)
-
-    console.log(request.originalUrl,service)
     const targetUrl = `${this.origins[service]}${request.originalUrl}`
     const method = request.method.toLowerCase()
     const { headers, body } = request
     const filteredHeaders = this.filterHeaders(headers, this.allowedHeaders)
 
-    console.log(targetUrl, 'target URL')
-    console.log(filteredHeaders, 'filteredHeaders')
-
-    if (method === 'get' || method === 'delete') {
-        const res = await axios[method](targetUrl, { headers: filteredHeaders })
-        return res.data
-    } else {
-        const axiosResponse = await axios[method](targetUrl, body, { headers: filteredHeaders })
-
-      this.applyHeaders(response, axiosResponse.headers)
-      return axiosResponse.data
+    try {
+      if (method === 'get' || method === 'delete') {
+          const res = await axios[method](targetUrl, { headers: filteredHeaders })
+          return res.data
+      } else {
+          const axiosResponse = await axios[method](targetUrl, body, { headers: filteredHeaders })
+          this.applyHeaders(response, axiosResponse.headers)
+          return axiosResponse.data
+      }
+    } catch (err) {
+      if (isAxiosError(err)) {
+        response.status(err.status || 500)
+        return err.response?.data
+      }
     }
   }
 

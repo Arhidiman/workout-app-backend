@@ -5,6 +5,9 @@ import {
     Body, 
     Req,
     Res,
+    InternalServerErrorException,
+    NotImplementedException,
+    ServiceUnavailableException,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import type { IncomingHttpHeaders } from "http";
@@ -18,7 +21,6 @@ export class UserController {
 
     @Post('sign-in')
     async signIn(@Body() body: SignUpRequest, @Res() response: Response) {
-
         console.log('try sign in')
         const { access_token, refresh_token} = await this.userService.signIn(body) || {}  
         console.log(access_token, refresh_token, 'access_token, refresh_token')
@@ -40,11 +42,16 @@ export class UserController {
     }
 
     @Post('validate')
-    async validate(@Headers() headers: IncomingHttpHeaders) {        
-        console.log('try to validate token')
+    async validate(@Headers() headers: IncomingHttpHeaders) { 
+        throw new ServiceUnavailableException('Feature temporaty disabled. Token validation is in gateway service')       
         const token = headers['authorization']?.replace('Bearer', '').trim()
         await this.userService.validate(token || '' )
         return
+    }
+
+    @Post('revoke')
+    async revoke(@Headers() headers: IncomingHttpHeaders) {        
+        throw new NotImplementedException('Revoke token feature not implemented yet')
     }
 
     private authResponse(response: Response, { access_token, refresh_token }: AuthResponse) {

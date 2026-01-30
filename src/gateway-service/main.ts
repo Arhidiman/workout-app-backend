@@ -1,11 +1,12 @@
+import { config } from 'dotenv'
+const path = require('path')
+config({ path: path.resolve(process.cwd(), '.env')})
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { config } from 'dotenv'
 import { AuthGuard } from './guards/auth.guard';
 
 
-const path = require('path')
-config({ path: path.resolve(process.cwd(), '.env')})
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

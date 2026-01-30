@@ -9,7 +9,7 @@ import { User } from "./user.entity";
 import { Role } from "../role/role.entity";
 import { jwtConstants } from "./jwtConstants";
 
-console.log(jwtConstants.secret, 'its secret key (:')
+console.log(process.env.JWT_SECRET, 'its secret key (:')
 
 @Module({
     imports: [
@@ -18,7 +18,7 @@ console.log(jwtConstants.secret, 'its secret key (:')
         TypeOrmModule.forFeature([User, Role]),
         JwtModule.register({
             global: true,
-            secret: jwtConstants.secret,
+            secret: process.env.JWT_SECRET,
             signOptions: { expiresIn: '30s' },
         }),
     ],

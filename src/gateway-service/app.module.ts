@@ -6,29 +6,26 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './guards/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { secret } from './JWT';
+import { ConfigModule } from '@nestjs/config'
+const path = require('path')
 
-// @Module({})
-// export class AppModule implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     try {
-//       consumer
-//           .apply(AuthMiddleware)
-//           .forRoutes('/')
-//     } catch(err) {
-//       console.log(err.message)
-//     }
-   
-//   } 
-// }
+console.log({
+  PORT: process.env.API_GATEWAY_PORT,
+  PORT_TYPE: typeof process.env.API_GATEWAY_PORT,
+  NUMBER_PORT: Number(process.env.API_GATEWAY_PORT),
+})
 
 @Module({
   imports: [
     JwtModule.register({
       global: true,
-      secret,
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60s' },
     }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: path.resolve(process.cwd(), '.env'),
+    })
   ],
   providers: [
     {

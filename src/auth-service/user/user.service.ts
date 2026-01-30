@@ -31,7 +31,10 @@ export class UserService {
     async signIn(request: SignInRequest): Promise<SignInResponse> {
         console.log(request, 'sign in request')
         const { user_name, password } = request
+        console.log(user_name, password, 'user_name, password')
         const user = await this.userRepository.findOne({ where: { user_name, password }})
+
+        console.log(user, 'signed user')
         if (!user) throw new UnauthorizedException('Incorrect login or password')  
         return await this.createUserSession(user)
     }
