@@ -54,6 +54,18 @@ export class UserService {
         }    
     }
 
+    async getAll(): Promise<User[]> {      
+        
+        return await this.userRepository.find()
+
+        const defaultRole = 'user'
+        const role = await this.roleRepository.findOne({ where: { role_name: defaultRole }})
+
+        if (!role) throw new InternalServerErrorException(`Role "${defaultRole}" does not extist`)
+
+   
+    }
+
     async validate(token: string) {
         try {
             await this.jwtService.verifyAsync(token)

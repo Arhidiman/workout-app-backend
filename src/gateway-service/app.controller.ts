@@ -9,8 +9,13 @@ export class AppController {
     constructor(private readonly appService: AppService) {}
 
     @All('*')
+    @UseGuards(AuthGuard)
     async handle(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         console.log('@ get request')
+
+
+
+        
 
 
         return await this.appService.proxy(req, res);

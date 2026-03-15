@@ -1,5 +1,6 @@
 import { 
     Controller, 
+    Get,
     Post, 
     Headers, 
     Body, 
@@ -9,6 +10,7 @@ import {
     NotImplementedException,
     ServiceUnavailableException,
 } from "@nestjs/common";
+import { User } from "./user.entity";
 import { UserService } from "./user.service";
 import type { IncomingHttpHeaders } from "http";
 import type { SignUpRequest, AuthResponse } from "./types";
@@ -18,6 +20,12 @@ import type { Response } from "express";
 export class UserController {
 
     constructor (private userService: UserService) {}
+
+    @Get('get-all')
+    async getAll(): Promise<User[]> {
+        return await this.userService.getAll()
+    }
+
 
     @Post('sign-in')
     async signIn(@Body() body: SignUpRequest, @Res() response: Response) {
