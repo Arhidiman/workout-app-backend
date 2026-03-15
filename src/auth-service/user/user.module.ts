@@ -7,20 +7,12 @@ import { SessionModule } from "../session/session.module";
 import { RoleModule } from "../role/role.module";
 import { User } from "./user.entity";
 import { Role } from "../role/role.entity";
-import { jwtConstants } from "./jwtConstants";
-
-console.log(process.env.JWT_SECRET, 'its secret key (:')
 
 @Module({
     imports: [
         SessionModule,
         RoleModule,
         TypeOrmModule.forFeature([User, Role]),
-        JwtModule.register({
-            global: true,
-            secret: process.env.JWT_SECRET,
-            signOptions: { expiresIn: '30s' },
-        }),
     ],
     exports: [],
     controllers: [UserController],

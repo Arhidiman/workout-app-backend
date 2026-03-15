@@ -44,10 +44,14 @@ export class UserService {
         const role = await this.roleRepository.findOne({ where: { role_name: defaultRole }})
 
         if (!role) throw new InternalServerErrorException(`Role "${defaultRole}" does not extist`)
-        const testUser = await this.userRepository.create({ ...userData, role_id: role.id })
-        const savedUser = await this.userRepository.save(testUser)
 
-        return await this.createUserSession(savedUser)
+        try {
+            const testUser = await this.userRepository.create({ ...userData, role_id: role.id })
+            const savedUser = await this.userRepository.save(testUser)
+            return await this.createUserSession(savedUser)
+        } catch (err) {
+            throw new InternalServerErrorException(`${err.message}. User name: ${userData.user_name}`)
+        }    
     }
 
     async validate(token: string) {

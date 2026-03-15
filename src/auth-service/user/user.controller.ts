@@ -21,7 +21,6 @@ export class UserController {
 
     @Post('sign-in')
     async signIn(@Body() body: SignUpRequest, @Res() response: Response) {
-        console.log('try sign in')
         const { access_token, refresh_token} = await this.userService.signIn(body) || {}  
         console.log(access_token, refresh_token, 'access_token, refresh_token')
         this.authResponse(response, { access_token, refresh_token })
@@ -55,13 +54,10 @@ export class UserController {
     }
 
     private authResponse(response: Response, { access_token, refresh_token }: AuthResponse) {
-
-
         this
         .applyTokens(response, { access_token, refresh_token })
         .status(200)
         .send()
-
         console.log(response.getHeader('authorization'), "response.getHeader('authorization')")
     }
 
